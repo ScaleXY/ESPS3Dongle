@@ -1,0 +1,33 @@
+(version 1)
+# Custom rules for the ESP32-S3 dongle (plans/02 §3, §5; plans/03 §4, §5).
+
+(rule "RF line: no vias"
+  (condition "A.NetClass == 'RF_50R'")
+  (constraint via_count (max 0)))
+
+(rule "RF line: 50 ohm CPWG gap to GND copper (tracks, pours)"
+  (condition "A.NetClass == 'RF_50R' && A.Type == 'Track' && (B.Type == 'Zone' || B.Type == 'Track')")
+  (constraint clearance (min 0.3)))
+
+(rule "Crystal: no vias on clock traces"
+  (condition "A.NetClass == 'XTAL'")
+  (constraint via_count (max 0)))
+
+(rule "USB 90 ohm pairs"
+  (condition "A.inDiffPair('USB*_D_*')")
+  (constraint diff_pair_gap (min 0.13) (opt 0.15) (max 0.17))
+  (constraint diff_pair_uncoupled (max 2.0))
+  (constraint skew (max 0.5))
+  (constraint via_count (max 2)))
+
+(rule "NPTH (J1 pegs) to copper: JLC 0.2 mm"
+  (condition "A.Pad_Type == 'NPTH, mechanical'")
+  (constraint hole_clearance (min 0.2)))
+
+(rule "VDD3P3 RF supply >= 20 mil"
+  (condition "A.NetName == 'VDD3P3'")
+  (constraint track_width (min 0.5)))
+
+(rule "Main 3V3 / VSYS / VBUS >= 0.4 mm"
+  (condition "A.NetClass == 'POWER' && A.NetName != 'GND'")
+  (constraint track_width (min 0.4)))
